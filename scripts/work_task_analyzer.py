@@ -23,11 +23,11 @@ class WorkTaskAnalyzer:
     """Analyzes work tasks and generates actionable reports."""
 
     # Class constants
-    TODO_DATABASE_ID = "[YOUR_WORK_TASK_DATABASE_ID]"
-    ALL_SPRINTS_DATABASE_ID = "[YOUR_ALL_SPRINTS_DATABASE_ID]"
-    MEETINGS_DATABASE = "[YOUR_MEETINGS_DATABASE_ID]"
-    YOUR_NAME_USER_ID = "[YOUR_NOTION_USER_ID]"
-    TEAM_MEMBER_USER_ID = "[TEAM_MEMBER_NOTION_USER_ID]"
+    TODO_DATABASE_ID = "2f9ff6d0-ac74-8109-bd55-c2e0a10dc807"
+    ALL_SPRINTS_DATABASE_ID = "2f9ff6d0-ac74-8121-a6f8-f0df1bf3e57c"
+    MEETINGS_DATABASE = "2f9ff6d0-ac74-81ec-9f6d-c1d973937f83"
+    YOUR_NAME_USER_ID = "38065d15-3eb5-4850-b9be-ea0ac658da58"
+    TEAM_MEMBER_USER_ID = ""  # Add team member ID if applicable
 
     TAG_EMOJIS = {
         "Build": "🛠️",

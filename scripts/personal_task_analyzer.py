@@ -8,7 +8,7 @@ Usage:
     report = analyze_personal_tasks()
     print(report)
 
-Database ID: [YOUR_PERSONAL_TASKS_DATABASE_ID]
+Database ID: 2f9ff6d0-ac74-816f-9c57-f8cd7c850208
 """
 
 import os
@@ -17,15 +17,15 @@ from typing import Dict, List, Optional
 from notion_client import Client
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from parent directory
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 
 class TaskAnalyzer:
     """Analyzes personal tasks and generates actionable reports."""
 
     # Class constants
-    DATABASE_ID = "[YOUR_PERSONAL_TASKS_DATABASE_ID]"
+    DATABASE_ID = "2f9ff6d0-ac74-816f-9c57-f8cd7c850208"
     PRIORITY_EMOJIS = {
         "High": "🔴",
         "Critical": "🚨",
