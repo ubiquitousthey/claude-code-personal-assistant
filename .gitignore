@@ -119,3 +119,5 @@ private/
 *.pem
 *.crt
 *.p12
+# Telegram bot secrets
+telegram-bot/.env

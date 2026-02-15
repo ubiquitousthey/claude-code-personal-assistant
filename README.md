@@ -6,11 +6,12 @@ This repository contains a template for setting up a personal assistant using Cl
 
 Before you begin, ensure you have the following:
 
--   **Claude Code**: This setup is designed to be used with Cursor.
--   **[mcp-gsuite-enhanced](https://github.com/ajramos/mcp-gsuite-enhanced)**: For Google Calendar and Gmail integration.
--   **[Notion MCP Server](https://github.com/makenotion/notion-mcp-server)**: For Notion integration.
--   **Python 3.10+**: For running the analysis scripts.
--   **A Notion account and a Google account.**
+-   **Claude Code CLI**: Install via `npm install -g @anthropic-ai/claude-code`
+-   **Docker** (recommended): For running Claude Code in an isolated container
+-   **[mcp-gsuite-enhanced](https://github.com/ajramos/mcp-gsuite-enhanced)**: For Google Calendar and Gmail integration
+-   **[Notion MCP Server](https://github.com/makenotion/notion-mcp-server)**: For Notion integration
+-   **Python 3.10+**: For running the analysis scripts (included in Docker setup)
+-   **A Notion account and a Google account**
 
 ## Setup Instructions
 
@@ -74,6 +75,108 @@ With the setup complete, you can now use your personal assistant.
 -   **Daily Routine**: Use the `daily-routine.md` command to trigger your assistant's morning workflow.
 -   **Task Analysis**: Run the Python scripts to get reports on your work and personal tasks.
 
+## Running in Docker (Recommended)
+
+Running Claude Code in a Docker container provides isolation and security, allowing you to give it more freedom without risk to your system.
+
+### Quick Start
+
+1.  **Authenticate Claude on your host machine first** (if you haven't already):
+    ```bash
+    claude
+    # Follow the OAuth login prompts
+    ```
+
+2.  **Build and run the container:**
+    ```bash
+    # Option A: Using the helper script
+    ./scripts/docker-run.sh
+
+    # Option B: Using docker compose directly
+    docker compose run --rm claude
+    ```
+
+3.  **Inside the container, start Claude:**
+    ```bash
+    claude
+    ```
+
+The container automatically uses your existing Claude credentials from `~/.claude/.credentials.json`.
+
+### What's Mounted
+
+| Host | Container | Purpose |
+|------|-----------|---------|
+| `.` (project dir) | `/workspace` | Your files (read-write) |
+| `~/.claude/.credentials.json` | `/home/claude/.claude/.credentials.json` | OAuth credentials (read-only) |
+| Docker volume `claude-config` | `/home/claude/.claude` | All Claude config persists |
+
+### Key Benefits
+
+-   **Files stay on your machine** - The `/workspace` mount means all edits happen to your actual files
+-   **Isolation** - Claude runs as non-root user inside the container
+-   **Persisted state** - Claude's settings, MCP servers, and customizations survive container rebuilds
+-   **Security** - API keys passed via environment variables, not baked into the image
+
+### One-liner to start Claude directly
+
+```bash
+docker compose run --rm claude claude
+```
+
+### Config Persistence
+
+The Docker setup uses a smart initialization system to persist your Claude configuration across container rebuilds while keeping project defaults in sync.
+
+#### How It Works
+
+1. **Project defaults** (in `.claude/`) are baked into the image at `/home/claude/.claude-defaults/`
+2. **User config** lives in a named Docker volume at `/home/claude/.claude/`
+3. **On container start**, the init script (`scripts/docker-init.sh`) copies missing defaults to the volume
+
+#### What Gets Persisted
+
+The `claude-config` volume preserves:
+- `settings.json` and `settings.local.json`
+- MCP server configurations (`.mcp.json`, `mcp-servers.json`)
+- Custom commands you add at runtime
+- Custom agents and hooks
+- Any other Claude configuration
+
+#### Behavior on Rebuild
+
+| Scenario | What Happens |
+|----------|--------------|
+| Rebuild image | Volume untouched, all your config preserved |
+| Add new command to project `.claude/commands/` | Copied to volume on next start (won't overwrite your version) |
+| Modify existing project command | Your customized version in volume takes precedence |
+| First run (empty volume) | All project defaults copied to volume |
+
+#### Reset Configuration
+
+To start fresh with only project defaults:
+
+```bash
+# Remove the config volume
+docker volume rm claude-code-personal-assistant_claude-config
+
+# Rebuild and run
+docker compose up --build
+```
+
+#### Adding MCP Servers in Container
+
+MCP servers installed inside the container persist in the volume:
+
+```bash
+# Inside container
+claude mcp add my-server -- npx @example/my-mcp-server
+
+# This survives container rebuilds
+```
+
+To make an MCP server part of your project defaults (so it's available to anyone who clones the repo), add it to `.claude/.mcp.json` instead.
+
 ## Customization
 
 This is a template, so feel free to customize it to your needs.
@@ -81,6 +184,13 @@ This is a template, so feel free to customize it to your needs.
 -   **Modify `CLAUDE.md`**: Adjust the assistant's personality, responsibilities, and workflows.
 -   **Update Templates**: Change the templates in the `templates/` directory to match your preferred formats for daily schedules, sprint planning, and standup notes.
 -   **Extend Scripts**: Add more functionality to the Python scripts for more in-depth analysis.
+
+## Security Notes
+
+-   The `.env` file contains sensitive API keys and is excluded from git via `.gitignore`
+-   Never commit `.env` to version control
+-   Use `.env.example` as a template for required environment variables
+-   If running in Docker, API keys are passed as environment variables and not stored in the image
 
 ---
 

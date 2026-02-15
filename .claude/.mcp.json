@@ -1,11 +1,20 @@
 {
   "mcpServers": {
-    "notion-mcp": {
-      "type": "stdio",
+    "apple-reminders": {
       "command": "npx",
-      "args": ["-y", "@notionhq/notion-mcp-server"],
+      "args": [
+        "mcp-proxy",
+        "http://host.docker.internal:8787/sse"
+      ]
+    },
+    "notion-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@notionhq/notion-mcp-server"
+      ],
       "env": {
-        "OPENAPI_MCP_HEADERS": "{\"Authorization\": \"Bearer $NOTION_TOKEN\", \"Notion-Version\": \"2022-06-28\" }"
+        "NOTION_TOKEN": "${NOTION_TOKEN}"
       }
     },
     "mcp-gsuite": {
@@ -19,6 +28,16 @@
       "env": {
         "PYTHONPATH": "$CLAUDE_PROJECT_DIR/mcp-gsuite",
         "UV_PROJECT_ENVIRONMENT": "$CLAUDE_PROJECT_DIR/mcp-gsuite/.venv"
+      }
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
       }
     }
   }
